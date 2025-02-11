@@ -1,7 +1,7 @@
 {
   "name": "my-app",
-  "homepage": "https://Dipak961github.io/shop-web",
-  "version": "0.1.0",
+ "homepage": "https://dipak961.github.io/shop-web/",
+ "version": "0.1.0",
   "private": true,
   "dependencies": {
     "cra-template": "1.2.0",
