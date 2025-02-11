@@ -1,0 +1,126 @@
+/* src/components/order.css */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+}
+
+h2 {
+    color: #333;
+    text-align: center; /* Center the heading */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 12px; /* Increased padding for better readability */
+    text-align: left;
+}
+
+th {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    font-weight: bold; /* Make header text bold */
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9; /* Slightly lighter gray for even rows */
+}
+
+tr:hover {
+    background-color: #e0e0e0; /* Slightly lighter gray */
+}
+
+button {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s, transform 0.2s; /* Smooth transition */
+}
+
+button:hover {
+    background-color: #45a049; /* Darker green */
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+form {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+form input {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+form input:focus {
+    border-color: #4CAF50; /* Green */
+    outline: none;
+}
+
+form button {
+    width: 100%;
+    background-color: #007BFF; /* Blue */
+    padding: 12px; /* Increased padding for buttons */
+    border-radius: 5px; /* Consistent border radius */
+}
+
+form button:hover {
+    background-color: #0056b3; /* Darker blue */
+}
+
+
+.search-container input {
+    width: 12%; /* Set width to 12% */
+    padding: 8px; /* Padding for input */
+    margin: 10px 7px; /* Margin around input */
+    border: 1px solid #ccc; /* Border color */
+    border-radius: 4px; /* Rounded corners */
+    box-sizing: border-box; /* Include padding and border in width */
+    transition: border-color 0.3s; /* Smooth transition for border color */
+}
+
+.search-container input:focus {
+    border-color: #4CAF50; /* Change border color on focus */
+}
+
+/* Other existing styles... */
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    form {
+        padding: 15px;
+    }
+
+    form input {
+        width: 100%; /* Full width on small screens */
+    }
+
+    button {
+        width: 100%; /* Full width buttons on small screens */
+    }
+}

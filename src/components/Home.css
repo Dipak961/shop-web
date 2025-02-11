@@ -1,0 +1,42 @@
+/* src/components/Home.css */
+
+.home-page {
+    padding: 20px;
+    background-color: #f4f4f4;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.product-list {
+    list-style-type: none;
+    padding: 0;
+    display: flex; /* Use flexbox for alignment */
+    justify-content: center; /* Center the items */
+    flex-wrap: wrap; /* Allow items to wrap to the next line */
+}
+
+.product-list li {
+    display: flex;
+    flex-direction: column; /* Stack image and text vertically */
+    align-items: center; /* Center items horizontally */
+    margin: 10px; /* Add margin around each item */
+}
+
+.product-list img {
+    width: 150px; /* Increase size as needed */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 4px;
+    margin-bottom: 5px; /* Space between image and text */
+}
+
+h2, h3 {
+    text-align: center; /* Center headings */
+}
+
+ul {
+    text-align: center; /* Center the text in the unordered list */
+}
+
+ul li {
+    margin: 5px 35rem; /* Add some space between list items */
+}
