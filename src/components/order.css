@@ -25,7 +25,7 @@ th, td {
 }
 
 th {
-    background-color: #4CAF50; /* Green */
+    background-color: #444444; /* Soft Charcoal Gray */
     color: white;
     font-weight: bold; /* Make header text bold */
 }
@@ -39,7 +39,7 @@ tr:hover {
 }
 
 button {
-    background-color: #4CAF50; /* Green */
+    background-color: #B0B0B0; /* Soft Silver */
     color: white;
     border: none;
     padding: 10px 15px;
@@ -53,7 +53,7 @@ button {
 }
 
 button:hover {
-    background-color: #45a049; /* Darker green */
+    background-color: #9C9C9C; /* Slightly darker silver */
     transform: scale(1.05); /* Slightly enlarge on hover */
 }
 
@@ -74,7 +74,7 @@ form input {
 }
 
 form input:focus {
-    border-color: #4CAF50; /* Green */
+    border-color: #444444; /* Soft Charcoal Gray */
     outline: none;
 }
 
@@ -89,6 +89,10 @@ form button:hover {
     background-color: #0056b3; /* Darker blue */
 }
 
+.search-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
 
 .search-container input {
     width: 12%; /* Set width to 12% */
@@ -101,10 +105,29 @@ form button:hover {
 }
 
 .search-container input:focus {
-    border-color: #4CAF50; /* Change border color on focus */
+    border-color: #444444; /* Soft Charcoal Gray */
 }
 
-/* Other existing styles... */
+.download-container {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+}
+
+.download-button {
+    background-color: #28a745; /* Green color */
+    padding: 12px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    width: 200px;
+    display: block;
+    margin: 0 auto; /* Center the button */
+}
+
+.download-button:hover {
+    background-color: #218838; /* Darker green */
+}
 
 /* Responsive Design */
 @media (max-width: 600px) {
@@ -122,5 +145,9 @@ form button:hover {
 
     button {
         width: 100%; /* Full width buttons on small screens */
+    }
+
+    .search-container input {
+        width: 100%;
     }
 }

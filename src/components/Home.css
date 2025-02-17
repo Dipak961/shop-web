@@ -1,42 +1,117 @@
-/* src/components/Home.css */
-
+/* General Styling */
 .home-page {
+    padding: 40px;
+    background: white; /* Changed to white background */
+    color: #2c3e50; /* Dark text for better contrast */
+    text-align: center;
+    border-radius: 15px;
+    box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.1);
+    max-width: 1200px;
+    margin: auto;
+}
+
+.brand-title {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #FFD700;
+    text-shadow: 1px 1px 3px rgba(255, 215, 0, 0.5);
+}
+
+.brand-tagline {
+    font-size: 1.5rem;
+    color: #7f8c8d; /* Slightly muted color for tagline */
+    margin-bottom: 30px;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    color: #2c3e50; /* Dark color for section titles */
+    margin-top: 40px;
+}
+
+/* Product Grid */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px 0;
+}
+
+.product-card {
+    background: #ecf0f1; /* Light background for product cards */
     padding: 20px;
-    background-color: #f4f4f4;
-    border-radius: 5px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.product-list {
-    list-style-type: none;
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.product-image {
+    width: 100%;
+    max-width: 200px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.product-name {
+    font-size: 1.5rem;
+    color: #2c3e50; /* Dark color for product names */
+    font-weight: bold;
+}
+
+/* Features List */
+.features-list {
+    list-style: none;
     padding: 0;
-    display: flex; /* Use flexbox for alignment */
-    justify-content: center; /* Center the items */
-    flex-wrap: wrap; /* Allow items to wrap to the next line */
+    font-size: 1.2rem;
 }
 
-.product-list li {
-    display: flex;
-    flex-direction: column; /* Stack image and text vertically */
-    align-items: center; /* Center items horizontally */
-    margin: 10px; /* Add margin around each item */
+.features-list li {
+    margin: 10px 0;
+    font-weight: bold;
+    color: #2c3e50; /* Dark color for features */
 }
 
-.product-list img {
-    width: 150px; /* Increase size as needed */
-    height: auto; /* Maintain aspect ratio */
-    border-radius: 4px;
-    margin-bottom: 5px; /* Space between image and text */
+/* Upload Button */
+.upload-btn {
+    display: inline-block;
+    margin: 20px auto;
+    padding: 15px 25px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: white;
+    background: #2980b9;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.3s ease, transform 0.3s ease;
 }
 
-h2, h3 {
-    text-align: center; /* Center headings */
+.upload-btn:hover {
+    background: #3498db;
+    transform: scale(1.05);
 }
 
-ul {
-    text-align: center; /* Center the text in the unordered list */
+/* Delete All Button */
+.delete-all-btn {
+    margin-top: 20px;
+    padding: 12px 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: white;
+    background: #e74c3c;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.3s ease;
 }
 
-ul li {
-    margin: 5px 35rem; /* Add some space between list items */
+.delete-all-btn:hover {
+    background: #c0392b;
+    transform: scale(1.05);
 }

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import './BookingPage.css';
 
-const BookingPage = ({ bookings, setBookings, onSubmit, products }) => {
+const BookingPage = ({ onSubmit }) => {
+    const [billNumber, setBillNumber] = useState('');
     const [customerName, setCustomerName] = useState('');
     const [address, setAddress] = useState('');
     const [mobile, setMobile] = useState('');
-    const [selectedProducts, setSelectedProducts] = useState([{ name: '', code: '' }, { name: '', code: '' }, { name: '', code: '' }, { name: '', code: '' }]);
+    const [selectedProducts, setSelectedProducts] = useState([{ name: '', code: '' }]);
     const [startDate, setStartDate] = useState('');
     const [returnDate, setReturnDate] = useState('');
     const [totalAmount, setTotalAmount] = useState('');
@@ -16,12 +17,27 @@ const BookingPage = ({ bookings, setBookings, onSubmit, products }) => {
         'Indo Western',
         'Jodhpuri',
         'Blazer',
-        // Add more products as needed
     ];
+
+    const formatDate = (date) => {
+        if (!date) return "";
+        const [year, month, day] = date.split("-");
+        return `${day}-${month}-${year}`;
+    };
 
     const handleProductChange = (index, field, value) => {
         const newProducts = [...selectedProducts];
         newProducts[index][field] = value;
+        setSelectedProducts(newProducts);
+    };
+
+    const handleAddProduct = () => {
+        setSelectedProducts([...selectedProducts, { name: '', code: '' }]);
+    };
+
+    const handleRemoveProduct = (index) => {
+        const newProducts = [...selectedProducts];
+        newProducts.splice(index, 1);
         setSelectedProducts(newProducts);
     };
 
@@ -34,28 +50,28 @@ const BookingPage = ({ bookings, setBookings, onSubmit, products }) => {
         }
 
         const bookingDetails = {
+            billNumber, // Added Bill Number
             customerName,
             address,
             mobile,
             products: selectedProducts,
-            startDate,
-            returnDate,
+            startDate: formatDate(startDate),
+            returnDate: formatDate(returnDate),
             totalAmount: Number(totalAmount),
             advanceAmount: Number(advanceAmount),
             balanceAmount: Number(totalAmount) - Number(advanceAmount),
         };
 
-        // Call onSubmit to handle booking submission
         onSubmit(bookingDetails);
-
         resetForm();
     };
 
     const resetForm = () => {
+        setBillNumber('');
         setCustomerName('');
         setAddress('');
         setMobile('');
-        setSelectedProducts([{ name: '', code: '' }, { name: '', code: '' }, { name: '', code: '' }, { name: '', code: '' }]);
+        setSelectedProducts([{ name: '', code: '' }]);
         setStartDate('');
         setReturnDate('');
         setTotalAmount('');
@@ -66,6 +82,13 @@ const BookingPage = ({ bookings, setBookings, onSubmit, products }) => {
         <div>
             <h2>Booking Page</h2>
             <form onSubmit={handleSubmit}>
+                <input
+                    type="text"
+                    placeholder="Bill Number"
+                    value={billNumber}
+                    onChange={(e) => setBillNumber(e.target.value)}
+                    required
+                />
                 <input
                     type="text"
                     placeholder="Customer Name"
@@ -95,7 +118,7 @@ const BookingPage = ({ bookings, setBookings, onSubmit, products }) => {
                         <select
                             value={product.name}
                             onChange={(e) => handleProductChange(index, 'name', e.target.value)}
-                            required
+                            required={index === 0}
                         >
                             <option value="">Select a product</option>
                             {availableProducts.map((availableProduct, idx) => (
@@ -110,21 +133,32 @@ const BookingPage = ({ bookings, setBookings, onSubmit, products }) => {
                             value={product.code}
                             onChange={(e) => handleProductChange(index, 'code', e.target.value)}
                         />
+                        {index > 0 && (
+                            <button type="button" onClick={() => handleRemoveProduct(index)}>Remove</button>
+                        )}
                     </div>
                 ))}
+                <button type="button" onClick={handleAddProduct}>Add Product</button>
 
+                {/* Date Inputs with Formatted Display */}
+                <label>Start Date:</label>
                 <input
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
                     required
                 />
+                <p>Selected Start Date: {formatDate(startDate)}</p>
+
+                <label>Return Date:</label>
                 <input
                     type="date"
                     value={returnDate}
                     onChange={(e) => setReturnDate(e.target.value)}
                     required
                 />
+                <p>Selected Return Date: {formatDate(returnDate)}</p>
+
                 <input
                     type="number"
                     placeholder="Total Amount"
@@ -142,7 +176,7 @@ const BookingPage = ({ bookings, setBookings, onSubmit, products }) => {
                 <input
                     type="number"
                     placeholder="Balance Amount"
-                    value={totalAmount - advanceAmount} // Calculate balance dynamically
+                    value={totalAmount - advanceAmount} // Auto-calculated
                     readOnly
                 />
                 <button type="submit">Submit Booking</button>

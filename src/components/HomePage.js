@@ -1,75 +1,97 @@
-// src/components/HomePage.js
-import React, { useState } from 'react';
-import './Home.css'; 
+import React, { useState, useEffect } from 'react';
+import './Home.css';
 
 const HomePage = () => {
     const [uploadedImages, setUploadedImages] = useState([]);
+    const [selectedImageIndex, setSelectedImageIndex] = useState("");
+
+   
+    useEffect(() => {
+        const savedImages = JSON.parse(localStorage.getItem('uploadedImages')) || [];
+        setUploadedImages(savedImages);
+    }, []);
 
     const handleImageUpload = (event) => {
         const files = Array.from(event.target.files);
-        const imageUrls = files.map(file => URL.createObjectURL(file));
-        setUploadedImages(prevImages => [...prevImages, ...imageUrls]);
+
+        Promise.all(files.map(file => {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+            });
+        })).then(imageBase64Array => {
+            const newImages = [...uploadedImages, ...imageBase64Array];
+            setUploadedImages(newImages);
+            localStorage.setItem('uploadedImages', JSON.stringify(newImages)); 
+        });
     };
 
-    const handleImageDelete = (index) => {
-        setUploadedImages(prevImages => prevImages.filter((_, i) => i !== index));
+   
+    const handleDeleteImage = () => {
+        if (selectedImageIndex === "") return;
+        const index = parseInt(selectedImageIndex);
+        const newImages = uploadedImages.filter((_, i) => i !== index);
+        setUploadedImages(newImages);
+        localStorage.setItem('uploadedImages', JSON.stringify(newImages));
+        setSelectedImageIndex(""); 
     };
 
     return (
         <div className="home-page">
-            <h2>Welcome to Deepak Koradiya Rental</h2>
-            <p>
-                At Deepak Koradiya, we offer a wide range of traditional attire for rent, perfect for any special occasion.
-                Whether you're looking for a Sherwani, Indo Western outfit, Jodhpuri, or Blazer, we have you covered.
+            <h1 className="brand-title">Raj Shakti Sherwani & Safa Rental</h1>
+            <p className="brand-tagline">
+                Elevate your style with our premium traditional outfits for every occasion.
             </p>
-            <h3>Our Products</h3>
-            <ul className="product-list">
-                <li>
-                    <img src="https://shreeman.in/cdn/shop/products/RG406407-Edit.jpg?v=1630067721&width=3161" alt="Sherwani" />
-                    <span>Sherwani</span>
-                </li>
-                <li>
-                    <img src="https://images.indianweddingsaree.com/images/tr:w-240,q-95/1872918.jpg" alt="Indo Western" />
-                    <span>Indo Western</span>
-                </li>
-                <li>
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyqDAixZ2tPs6uzLF8pjiFiDpLoHyBhhNVqg&s" alt="Jodhpuri" />
-                    <span>Jodhpuri</span>
-                </li>
-                <li>
-                    <img src="https://m.media-amazon.com/images/I/81AXenWWDYL._AC_UY1100_.jpg" alt="Blazer" />
-                    <span>Blazer</span>
-                </li>
-                {/* Display uploaded images here */}
-                {uploadedImages.map((image, index) => (
-                    <li key={index}>
-                        <img src={image} alt={`Uploaded ${index}`} />
-                        <span>Uploaded Image {index + 1}</span>
-                    </li>
+
+            <h2 className="section-title">Our Exclusive Collection</h2>
+            <div className="product-grid">
+                {[
+                    { img: "https://shreeman.in/cdn/shop/products/RG406407-Edit.jpg?v=1630067721&width=3161", name: "Sherwani" },
+                    { img: "https://images.indianweddingsaree.com/images/tr:w-240,q-95/1872918.jpg", name: "Indo Western" },
+                    { img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyqDAixZ2tPs6uzLF8pjiFiDpLoHyBhhNVqg&s", name: "Jodhpuri" },
+                    { img: "https://m.media-amazon.com/images/I/81AXenWWDYL._AC_UY1100_.jpg", name: "Blazer" }
+                ].map((product, index) => (
+                    <div key={index} className="product-card">
+                        <img src={product.img} alt={product.name} className="product-image" />
+                        <h3 className="product-name">{product.name}</h3>
+                    </div>
                 ))}
-            </ul>
-            <h3>Why Choose Us?</h3>
-            <ul>
-                <li>High-quality garments</li>
-                <li>Affordable rental prices</li>
-                <li>Excellent customer service</li>
-                <li>Convenient booking process</li>
-            </ul>
-            <p>
-                Contact us today to book your attire and make your special occasion unforgettable!
-            </p>
 
-            <h3>Upload Your Own Images</h3>
-            <input type="file" accept="image/*" multiple onChange={handleImageUpload} />
+                {uploadedImages.map((image, index) => (
+                    <div key={index} className="product-card uploaded">
+                        <img src={image} alt={`Uploaded ${index + 1}`} className="product-image" />
+                        <h3 className="product-name">Uploaded Image {index + 1}</h3>
+                    </div>
+                ))}
+            </div>
 
-            {/* Delete button for uploaded images */}
+            <h2 className="section-title">Why Choose Us?</h2>
+            <ul className="features-list">
+                <li>✔ Premium Quality Fabrics</li>
+                <li>✔ Affordable Rental Prices</li>
+                <li>✔ Elegant & Exclusive Designs</li>
+                <li>✔ Hassle-Free Booking & Delivery</li>
+            </ul>
+
+            <h2 className="section-title">Upload Your Own Designs</h2>
+            <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="upload-btn" />
+
             {uploadedImages.length > 0 && (
-                <div className="delete-buttons">
-                    {uploadedImages.map((_, index) => (
-                        <button key={index} onClick={() => handleImageDelete(index)}>
-                            Delete Uploaded Image {index + 1}
-                        </button>
-                    ))}
+                <div className="delete-section">
+                    <select 
+                        value={selectedImageIndex} 
+                        onChange={(e) => setSelectedImageIndex(e.target.value)} 
+                        className="delete-dropdown"
+                    >
+                        <option value="">Select Image to Delete</option>
+                        {uploadedImages.map((_, index) => (
+                            <option key={index} value={index}>Delete Image {index + 1}</option>
+                        ))}
+                    </select>
+                    <button className="delete-btn" onClick={handleDeleteImage}>
+                        ❌ Delete Selected Image
+                    </button>
                 </div>
             )}
         </div>

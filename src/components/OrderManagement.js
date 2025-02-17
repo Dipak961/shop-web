@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import * as XLSX from 'xlsx';
 import './order.css';
 
 const OrderManagement = ({ bookings, setBookings }) => {
@@ -6,18 +7,24 @@ const OrderManagement = ({ bookings, setBookings }) => {
     const [currentBooking, setCurrentBooking] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [productSearchTerm, setProductSearchTerm] = useState('');
-    const [productCodeSearchTerm, setProductCodeSearchTerm] = useState(''); // State for product code search
+    const [productCodeSearchTerm, setProductCodeSearchTerm] = useState('');
+
+    const formatDate = (date) => {
+        if (!date) return 'N/A';
+        const [year, month, day] = date.split('-');
+        return `${day}-${month}-${year}`;
+    };
 
     const handleDelete = (index) => {
         const updatedBookings = bookings.filter((_, i) => i !== index);
         setBookings(updatedBookings);
-        localStorage.setItem('bookings', JSON.stringify(updatedBookings)); // Update localStorage
+        localStorage.setItem('bookings', JSON.stringify(updatedBookings));
     };
 
     const handleEdit = (index) => {
         const bookingToEdit = { ...bookings[index], index };
         if (!bookingToEdit.products) {
-            bookingToEdit.products = [];  // Initialize products array if undefined
+            bookingToEdit.products = [];
         }
         setCurrentBooking(bookingToEdit);
         setIsEditing(true);
@@ -25,11 +32,11 @@ const OrderManagement = ({ bookings, setBookings }) => {
 
     const handleUpdate = (e) => {
         e.preventDefault();
-        const updatedBookings = bookings.map((booking, index) => 
+        const updatedBookings = bookings.map((booking, index) =>
             index === currentBooking.index ? currentBooking : booking
         );
         setBookings(updatedBookings);
-        localStorage.setItem('bookings', JSON.stringify(updatedBookings)); // Update localStorage
+        localStorage.setItem('bookings', JSON.stringify(updatedBookings));
         setIsEditing(false);
         setCurrentBooking(null);
     };
@@ -45,7 +52,7 @@ const OrderManagement = ({ bookings, setBookings }) => {
                 name,
                 code: productCodes[index] || ''
             }));
-            
+
             setCurrentBooking((prev) => ({ ...prev, products: updatedProducts }));
         } else {
             setCurrentBooking((prev) => ({ ...prev, [name]: value }));
@@ -60,40 +67,54 @@ const OrderManagement = ({ bookings, setBookings }) => {
         setProductSearchTerm(e.target.value);
     };
 
-    const handleProductCodeSearch = (e) => { // Handler for product code search
+    const handleProductCodeSearch = (e) => {
         setProductCodeSearchTerm(e.target.value);
     };
 
-    // First filter the bookings by customer name and product code
     const filteredBookings = (bookings || []).filter(booking =>
         booking.customerName && booking.customerName.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Now filter bookings by matching products' names or product codes
     const filteredProducts = filteredBookings.filter(booking =>
-        booking.products && booking.products.some(product => 
-            (product.name.toLowerCase().includes(productSearchTerm.toLowerCase()) || 
-            product.code.toLowerCase().includes(productCodeSearchTerm.toLowerCase())) // Product code search logic
+        booking.products && booking.products.some(product =>
+            (product.name.toLowerCase().includes(productSearchTerm.toLowerCase()) ||
+                product.code.toLowerCase().includes(productCodeSearchTerm.toLowerCase()))
         )
     );
 
-    // Sort the filtered products so that matched ones come to the top
     const sortedFilteredBookings = filteredProducts.sort((a, b) => {
         const aMatch = a.products.some(p => p.code.toLowerCase().includes(productCodeSearchTerm.toLowerCase()));
         const bMatch = b.products.some(p => p.code.toLowerCase().includes(productCodeSearchTerm.toLowerCase()));
 
         if (aMatch && !bMatch) {
-            return -1; // a comes before b if a matches and b doesn't
+            return -1;
         } else if (!aMatch && bMatch) {
-            return 1; // b comes before a if b matches and a doesn't
+            return 1;
         }
-
-        // If both or neither match the product code, sort by customer name
         return a.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ? -1 : 1;
     });
 
     const totalAmount = bookings.reduce((acc, booking) => acc + Number(booking.totalAmount || 0), 0);
     const totalAdvanceAmount = bookings.reduce((acc, booking) => acc + Number(booking.advanceAmount || 0), 0);
+
+    const handleDownloadExcel = () => {
+        const worksheet = XLSX.utils.json_to_sheet(bookings.map(booking => ({
+            'Bill No': booking.billNumber,
+            'Customer Name': booking.customerName,
+            'Address': booking.address,
+            'Mobile': booking.mobile,
+            'Products': booking.products.map(p => `${p.name} (Code: ${p.code})`).join(', '),
+            'Start Date': formatDate(booking.startDate),
+            'Return Date': formatDate(booking.returnDate),
+            'Total Amount': booking.totalAmount,
+            'Advance Amount': booking.advanceAmount,
+            'Balance Amount': (booking.totalAmount || 0) - (booking.advanceAmount || 0),
+        })));
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Bookings');
+        XLSX.writeFile(workbook, 'Bookings.xlsx');
+    };
 
     return (
         <div>
@@ -113,91 +134,26 @@ const OrderManagement = ({ bookings, setBookings }) => {
                 />
                 <input
                     type="text"
-                    placeholder="Search Product Codes" // Input for product code search
+                    placeholder="Search Product Codes"
                     value={productCodeSearchTerm}
                     onChange={handleProductCodeSearch}
                 />
             </div>
+
             {isEditing ? (
                 <form onSubmit={handleUpdate}>
                     <h3>Edit Booking</h3>
-                    <input
-                        type="text"
-                        name="customerName"
-                        placeholder="Customer Name"
-                        value={currentBooking.customerName || ''}
-                        onChange={handleChange}
-                        required
-                    />
-                    <input
-                        type="text"
-                        name="address"
-                        placeholder="Address"
-                        value={currentBooking.address || ''}
-                        onChange={handleChange}
-                        required
-                    />
-                    <input
-                        type="text"
-                        name="mobile"
-                        placeholder="Mobile Number"
-                        value={currentBooking.mobile || ''}
-                        onChange={handleChange}
-                        required
-                    />
-                    <input
-                        type="text"
-                        name="products"
-                        placeholder="Products (comma separated)"
-                        value={currentBooking.products.map(p => p.name).join(', ') || ''}
-                        onChange={handleChange}
-                        required
-                    />
-                    <input
-                        type="text"
-                        name="productCodes"
-                        placeholder="Product Codes (comma separated)"
-                        value={currentBooking.products.map(p => p.code).join(', ') || ''}
-                        onChange={handleChange}
-                        required
-                    />
-                    <input
-                        type="date"
-                        name="startDate"
-                        value={currentBooking.startDate || ''}
-                        onChange={handleChange}
-                        required
-                    />
-                    <input
-                        type="date"
-                        name="returnDate"
-                        value={currentBooking.returnDate || ''}
-                        onChange={handleChange}
-                        required
-                    />
-                    <input
-                        type="number"
-                        name="totalAmount"
-                        placeholder="Total Amount"
-                        value={currentBooking.totalAmount || ''}
-                        onChange={handleChange}
-                        required
-                    />
-                    <input
-                        type="number"
-                        name="advanceAmount"
-                        placeholder="Advance Amount"
-                        value={currentBooking.advanceAmount || ''}
-                        onChange={handleChange}
-                        required
-                    />
-                    <input
-                        type="number"
-                        name="balanceAmount"
-                        placeholder="Balance Amount"
-                        value={currentBooking.totalAmount - currentBooking.advanceAmount || 0} // Calculate balance dynamically
-                        readOnly
-                    />
+                    <input type="text" name="billNumber" value={currentBooking.billNumber || ''} readOnly />
+                    <input type="text" name="customerName" value={currentBooking.customerName || ''} onChange={handleChange} required />
+                    <input type="text" name="address" value={currentBooking.address || ''} onChange={handleChange} required />
+                    <input type="text" name="mobile" value={currentBooking.mobile || ''} onChange={handleChange} required />
+                    <input type="text" name="products" value={currentBooking.products.map(p => p.name).join(', ') || ''} onChange={handleChange} required />
+                    <input type="text" name="productCodes" value={currentBooking.products.map(p => p.code).join(', ') || ''} onChange={handleChange} required />
+                    <input type="date" name="startDate" value={currentBooking.startDate || ''} onChange={handleChange} required />
+                    <input type="date" name="returnDate" value={currentBooking.returnDate || ''} onChange={handleChange} required />
+                    <input type="number" name="totalAmount" value={currentBooking.totalAmount || ''} onChange={handleChange} required />
+                    <input type="number" name="advanceAmount" value={currentBooking.advanceAmount || ''} onChange={handleChange} required />
+                    <input type="number" name="balanceAmount" value={currentBooking.totalAmount - currentBooking.advanceAmount || 0} readOnly />
                     <button type="submit">Update Booking</button>
                     <button type="button" onClick={() => setIsEditing(false)}>Cancel</button>
                 </form>
@@ -209,6 +165,7 @@ const OrderManagement = ({ bookings, setBookings }) => {
                         <table>
                             <thead>
                                 <tr>
+                                    <th>Bill No</th>
                                     <th>Customer Name</th>
                                     <th>Address</th>
                                     <th>Mobile</th>
@@ -224,17 +181,16 @@ const OrderManagement = ({ bookings, setBookings }) => {
                             <tbody>
                                 {sortedFilteredBookings.map((booking, index) => (
                                     <tr key={index}>
+                                        <td>{booking.billNumber || 'N/A'}</td>
                                         <td>{booking.customerName || 'N/A'}</td>
                                         <td>{booking.address || 'N/A'}</td>
                                         <td>{booking.mobile || 'N/A'}</td>
-                                        <td>
-                                            {booking.products.map(p => `${p.name} (Code: ${p.code})`).join(', ')}
-                                        </td>
-                                        <td>{booking.startDate || 'N/A'}</td>
-                                        <td>{booking.returnDate || 'N/A'}</td>
+                                        <td>{booking.products.map(p => `${p.name} (Code: ${p.code})`).join(', ')}</td>
+                                        <td>{formatDate(booking.startDate)}</td>
+                                        <td>{formatDate(booking.returnDate)}</td>
                                         <td>{booking.totalAmount || 0}</td>
                                         <td>{booking.advanceAmount || 0}</td>
-                                        <td>{(booking.totalAmount || 0) - (booking.advanceAmount || 0)}</td> {/* Calculate balance dynamically */}
+                                        <td>{(booking.totalAmount || 0) - (booking.advanceAmount || 0)}</td>
                                         <td>
                                             <button onClick={() => handleEdit(index)}>Edit</button>
                                             <button onClick={() => handleDelete(index)}>Delete</button>
@@ -244,10 +200,13 @@ const OrderManagement = ({ bookings, setBookings }) => {
                             </tbody>
                         </table>
                     )}
+
                     <h3>Total Amount: {totalAmount}</h3>
                     <h3>Total Advance Amount: {totalAdvanceAmount}</h3>
                 </>
             )}
+
+            <button className="download-btn" onClick={handleDownloadExcel}>Download as Excel</button>
         </div>
     );
 };
