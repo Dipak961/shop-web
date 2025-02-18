@@ -5,14 +5,19 @@ import './order.css';
 const OrderManagement = ({ bookings, setBookings }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [currentBooking, setCurrentBooking] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [productSearchTerm, setProductSearchTerm] = useState('');
+    const [billNoSearchTerm, setBillNoSearchTerm] = useState('');
+    const [startDateSearchTerm, setStartDateSearchTerm] = useState('');
     const [productCodeSearchTerm, setProductCodeSearchTerm] = useState('');
 
-    const formatDate = (date) => {
-        if (!date) return 'N/A';
-        const [year, month, day] = date.split('-');
-        return `${day}-${month}-${year}`;
+    // Function to format date to DD-MM-YY
+    const formatDateToDDMMYY = (date) => {
+        if (!date) return 'N/A'; // Return 'N/A' if date is invalid
+        const d = new Date(date);
+        if (isNaN(d.getTime())) return 'N/A'; // Check if date is valid
+        const day = String(d.getDate()).padStart(2, '0'); // Get day and pad with zero if needed
+        const month = String(d.getMonth() + 1).padStart(2, '0'); // Get month and pad with zero
+        const year = String(d.getFullYear()).slice(-2); // Get last two digits of the year
+        return `${day}-${month}-${year}`; // Format to DD-MM-YY
     };
 
     const handleDelete = (index) => {
@@ -59,12 +64,12 @@ const OrderManagement = ({ bookings, setBookings }) => {
         }
     };
 
-    const handleSearch = (e) => {
-        setSearchTerm(e.target.value);
+    const handleBillNoSearch = (e) => {
+        setBillNoSearchTerm(e.target.value);
     };
 
-    const handleProductSearch = (e) => {
-        setProductSearchTerm(e.target.value);
+    const handleStartDateSearch = (e) => {
+        setStartDateSearchTerm(e.target.value);
     };
 
     const handleProductCodeSearch = (e) => {
@@ -72,13 +77,13 @@ const OrderManagement = ({ bookings, setBookings }) => {
     };
 
     const filteredBookings = (bookings || []).filter(booking =>
-        booking.customerName && booking.customerName.toLowerCase().includes(searchTerm.toLowerCase())
+        booking.billNumber && booking.billNumber.toLowerCase().includes(billNoSearchTerm.toLowerCase()) &&
+        (startDateSearchTerm ? booking.startDate === startDateSearchTerm : true) // Check if startDate matches the search term
     );
 
     const filteredProducts = filteredBookings.filter(booking =>
         booking.products && booking.products.some(product =>
-            (product.name.toLowerCase().includes(productSearchTerm.toLowerCase()) ||
-                product.code.toLowerCase().includes(productCodeSearchTerm.toLowerCase()))
+            product.code.toLowerCase().includes(productCodeSearchTerm.toLowerCase())
         )
     );
 
@@ -91,7 +96,7 @@ const OrderManagement = ({ bookings, setBookings }) => {
         } else if (!aMatch && bMatch) {
             return 1;
         }
-        return a.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ? -1 : 1;
+        return a.billNumber.toLowerCase().includes(billNoSearchTerm.toLowerCase()) ? -1 : 1;
     });
 
     const totalAmount = bookings.reduce((acc, booking) => acc + Number(booking.totalAmount || 0), 0);
@@ -104,8 +109,8 @@ const OrderManagement = ({ bookings, setBookings }) => {
             'Address': booking.address,
             'Mobile': booking.mobile,
             'Products': booking.products.map(p => `${p.name} (Code: ${p.code})`).join(', '),
-            'Start Date': formatDate(booking.startDate),
-            'Return Date': formatDate(booking.returnDate),
+            'Start Date': formatDateToDDMMYY(booking.startDate),
+            'Return Date': formatDateToDDMMYY(booking.returnDate),
             'Total Amount': booking.totalAmount,
             'Advance Amount': booking.advanceAmount,
             'Balance Amount': (booking.totalAmount || 0) - (booking.advanceAmount || 0),
@@ -122,15 +127,15 @@ const OrderManagement = ({ bookings, setBookings }) => {
             <div className="search-container">
                 <input
                     type="text"
-                    placeholder="Search Customer Name"
-                    value={searchTerm}
-                    onChange={handleSearch}
+                    placeholder="Search Bill No"
+                    value={billNoSearchTerm}
+                    onChange={handleBillNoSearch}
                 />
                 <input
-                    type="text"
-                    placeholder="Search Products"
-                    value={productSearchTerm}
-                    onChange={handleProductSearch}
+                    type="date"
+                    placeholder="Search Start Date"
+                    value={startDateSearchTerm}
+                    onChange={handleStartDateSearch}
                 />
                 <input
                     type="text"
@@ -186,8 +191,8 @@ const OrderManagement = ({ bookings, setBookings }) => {
                                         <td>{booking.address || 'N/A'}</td>
                                         <td>{booking.mobile || 'N/A'}</td>
                                         <td>{booking.products.map(p => `${p.name} (Code: ${p.code})`).join(', ')}</td>
-                                        <td>{formatDate(booking.startDate)}</td>
-                                        <td>{formatDate(booking.returnDate)}</td>
+                                        <td>{formatDateToDDMMYY(booking.startDate)}</td>
+                                        <td>{formatDateToDDMMYY(booking.returnDate)}</td>
                                         <td>{booking.totalAmount || 0}</td>
                                         <td>{booking.advanceAmount || 0}</td>
                                         <td>{(booking.totalAmount || 0) - (booking.advanceAmount || 0)}</td>

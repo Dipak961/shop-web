@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './BookingPage.css';
 
-const BookingPage = ({ onSubmit }) => {
+const BookingPage = ({ setBookings }) => {
     const [billNumber, setBillNumber] = useState('');
     const [customerName, setCustomerName] = useState('');
     const [address, setAddress] = useState('');
@@ -12,18 +12,12 @@ const BookingPage = ({ onSubmit }) => {
     const [totalAmount, setTotalAmount] = useState('');
     const [advanceAmount, setAdvanceAmount] = useState('');
 
-    const availableProducts = [
-        'Sherwani',
-        'Indo Western',
-        'Jodhpuri',
-        'Blazer',
-    ];
+    useEffect(() => {
+        const storedBookings = JSON.parse(localStorage.getItem('bookings')) || [];
+        setBookings(storedBookings);
+    }, [setBookings]);
 
-    const formatDate = (date) => {
-        if (!date) return "";
-        const [year, month, day] = date.split("-");
-        return `${day}-${month}-${year}`;
-    };
+    const availableProducts = ['Sherwani', 'Indo Western', 'Jodhpuri', 'Blazer'];
 
     const handleProductChange = (index, field, value) => {
         const newProducts = [...selectedProducts];
@@ -43,26 +37,29 @@ const BookingPage = ({ onSubmit }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
         if (totalAmount <= 0 || advanceAmount < 0) {
             alert("Total Amount must be greater than 0 and Advance Amount cannot be negative.");
             return;
         }
 
-        const bookingDetails = {
-            billNumber, // Added Bill Number
+        const newBooking = {
+            billNumber,
             customerName,
             address,
             mobile,
             products: selectedProducts,
-            startDate: formatDate(startDate),
-            returnDate: formatDate(returnDate),
+            startDate: startDate, // Store as ISO string
+            returnDate: returnDate, // Store as ISO string
             totalAmount: Number(totalAmount),
             advanceAmount: Number(advanceAmount),
             balanceAmount: Number(totalAmount) - Number(advanceAmount),
         };
 
-        onSubmit(bookingDetails);
+        const updatedBookings = JSON.parse(localStorage.getItem('bookings')) || [];
+        updatedBookings.push(newBooking);
+        localStorage.setItem('bookings', JSON.stringify(updatedBookings));
+        setBookings(updatedBookings);
+
         resetForm();
     };
 
@@ -82,103 +79,35 @@ const BookingPage = ({ onSubmit }) => {
         <div>
             <h2>Booking Page</h2>
             <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    placeholder="Bill Number"
-                    value={billNumber}
-                    onChange={(e) => setBillNumber(e.target.value)}
-                    required
-                />
-                <input
-                    type="text"
-                    placeholder="Customer Name"
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    required
-                />
-                <input
-                    type="text"
-                    placeholder="Address"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    required
-                />
-                <input
-                    type="text"
-                    placeholder="Mobile Number"
-                    value={mobile}
-                    onChange={(e) => setMobile(e.target.value)}
-                    required
-                />
+                <input type="text" placeholder="Bill Number" value={billNumber} onChange={(e) => setBillNumber(e.target.value)} required />
+                <input type="text" placeholder="Customer Name" value={customerName} onChange={(e) => setCustomerName(e.target.value)} required />
+                <input type="text" placeholder="Address" value={address} onChange={(e) => setAddress(e.target.value)} required />
+                <input type="text" placeholder="Mobile Number" value={mobile} onChange={(e) => setMobile(e.target.value)} required />
 
-                {/* Product Selection */}
                 {selectedProducts.map((product, index) => (
                     <div key={index}>
                         <label>Product {index + 1}:</label>
-                        <select
-                            value={product.name}
-                            onChange={(e) => handleProductChange(index, 'name', e.target.value)}
-                            required={index === 0}
-                        >
+                        <select value={product.name} onChange={(e) => handleProductChange(index, 'name', e.target.value)} required>
                             <option value="">Select a product</option>
-                            {availableProducts.map((availableProduct, idx) => (
-                                <option key={idx} value={availableProduct}>
-                                    {availableProduct}
-                                </option>
+                            {availableProducts.map((item, idx) => (
+                                <option key={idx} value={item}>{item}</option>
                             ))}
                         </select>
-                        <input
-                            type="text"
-                            placeholder="Enter Product Code"
-                            value={product.code}
-                            onChange={(e) => handleProductChange(index, 'code', e.target.value)}
-                        />
-                        {index > 0 && (
-                            <button type="button" onClick={() => handleRemoveProduct(index)}>Remove</button>
-                        )}
+                        <input type="text" placeholder="Enter Product Code" value={product.code} onChange={(e) => handleProductChange(index, 'code', e.target.value)} />
+                        {index > 0 && <button type="button" onClick={() => handleRemoveProduct(index)}>Remove</button>}
                     </div>
                 ))}
                 <button type="button" onClick={handleAddProduct}>Add Product</button>
 
-                {/* Date Inputs with Formatted Display */}
                 <label>Start Date:</label>
-                <input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    required
-                />
-                <p>Selected Start Date: {formatDate(startDate)}</p>
-
+                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
                 <label>Return Date:</label>
-                <input
-                    type="date"
-                    value={returnDate}
-                    onChange={(e) => setReturnDate(e.target.value)}
-                    required
-                />
-                <p>Selected Return Date: {formatDate(returnDate)}</p>
+                <input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} required />
 
-                <input
-                    type="number"
-                    placeholder="Total Amount"
-                    value={totalAmount}
-                    onChange={(e) => setTotalAmount(e.target.value)}
-                    required
-                />
-                <input
-                    type="number"
-                    placeholder="Advance Amount"
-                    value={advanceAmount}
-                    onChange={(e) => setAdvanceAmount(e.target.value)}
-                    required
-                />
-                <input
-                    type="number"
-                    placeholder="Balance Amount"
-                    value={totalAmount - advanceAmount} // Auto-calculated
-                    readOnly
-                />
+                <input type="number" placeholder="Total Amount" value={totalAmount} onChange={(e) => setTotalAmount(e.target.value)} required />
+                <input type="number" placeholder="Advance Amount" value={advanceAmount} onChange={(e) => setAdvanceAmount(e.target.value)} required />
+                <input type="number" placeholder="Balance Amount" value={totalAmount - advanceAmount} readOnly />
+
                 <button type="submit">Submit Booking</button>
             </form>
         </div>

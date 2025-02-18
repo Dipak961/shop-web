@@ -1,7 +1,7 @@
 {
   "name": "my-app",
-  "homepage": "https://Dipak961.github.io/shop-web",
-  "version": "0.1.0",
+ "homepage": "https://Dipak961.github.io/shop-web/",
+ "version": "0.1.0",
   "private": true,
   "dependencies": {
     "bootstrap": "^5.3.3",
@@ -15,6 +15,7 @@
   },
   "scripts": {
     "predeploy": "npm run build",
+    
     "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
